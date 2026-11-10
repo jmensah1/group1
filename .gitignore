@@ -1,0 +1,8 @@
+bin/
+obj/
+.vs/
+.packages/
+Data/
+Data_Seed/
+Backups/
+*.user

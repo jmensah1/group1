@@ -1,0 +1,51 @@
+PASS: Seed contains four routes, buses and future trips
+PASS: Passwords are salted PBKDF2 hashes
+PASS: Identical passwords have distinct salted hashes
+PASS: UI snapshots do not expose signing key or password hashes
+PASS: Rejected action: Incorrect
+PASS: Rejected action: Incorrect
+PASS: Rejected action: Incorrect
+PASS: Rejected action: Incorrect
+PASS: Rejected action: Incorrect
+PASS: Rejected action: locked
+PASS: Rejected action: locked
+PASS: Rejected action: already
+PASS: Rejected action: Ghana
+PASS: Rejected action: 8 to 128
+PASS: Rejected action: role
+PASS: Rejected action: Cash
+PASS: Rejected action: approval
+PASS: Approved mock MoMo creates a Paid cryptographic ticket
+PASS: QRCoder produces a real PNG QR image
+PASS: Rejected action: signature
+PASS: Valid signed QR boards a paid ticket
+PASS: Rejected action: Already used
+PASS: Rejected action: unused
+PASS: Rejected action: Payment pending
+PASS: Pay at station cash is collected before boarding
+PASS: Cancellation releases the seat
+PASS: Cancellation records a mock refund
+PASS: Route price changes preserve historical ticket prices
+PASS: Rejected action: only serve
+PASS: Passenger ticket snapshots contain only their own tickets
+PASS: Rejected action: own tickets
+PASS: Rejected action: lower
+PASS: Rejected action: used
+PASS: Rejected action: disabled
+PASS: Projection crash recovery preserves all committed tickets
+PASS: Rejected action: Sign in
+PASS: Demo reset preserves a backup
+PASS: Concurrent seller process completed successfully
+PASS: Concurrent seller process completed successfully
+PASS: Concurrent seller process completed successfully
+PASS: Three processes attempting 60 sales issue exactly 5 tickets for 5 seats
+PASS: Concurrent ticket numbers are unique
+PASS: No orphan payments or SMS records under concurrent sales
+PASS: Rejected action: full
+PASS: Cancelling a full bus reopens Loading and one seat
+PASS: Replacement sale fills the bus again
+PASS: Rejected action: departed
+PASS: Rejected action: departed
+PASS: Unpaid bookings expire when the bus departs
+PASS: Core operational actions are audited
+ALL 50 CHECKS PASSED

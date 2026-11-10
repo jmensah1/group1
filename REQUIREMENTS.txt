@@ -1,0 +1,118 @@
+Project Requirements: Bus Ticketing and Transport Management System (School Demo)
+1. Problem
+
+Passengers on long-distance buses in Ghana queue at the station and buy paper tickets from a bookman. The bookman often doesn’t know the bus is full and keeps tearing tickets, so passengers are oversold and stranded.
+
+2. Goal
+
+A desktop app that lets passengers get a digital ticket (ticket number and QR code) before they reach the station, and lets bookmen sell tickets against a live seat count so a bus can never be oversold. Admins get full oversight of all buses and sales.
+
+3. Scope (agreed)
+Decision	Choice
+Seat handling	Seat count only (e.g. 38/45), no seat numbers
+Payments	Mobile Money (mock) and Cash
+Companies	One company
+Bus location	Origin station only, no GPS
+Data storage	JSON files, no database server
+Integrations	All mocked (payment, SMS)
+Purpose	Classroom demo on a PC, presentable by any group member
+4. Tech Stack
+Visual Studio, VB.NET Windows Forms (the existing Group1 project)
+System.Text.Json for reading and writing the JSON files
+QRCoder (NuGet) to generate the QR code image
+PrintDocument and PrintPreviewDialog for ticket printing (print preview is fine for the demo)
+No external services. MoMo and SMS are simulated.
+5. Roles and Screens
+Login Form (all roles)
+Username and password, with a role-based redirect to the right main form after login
+Demo accounts are created automatically on first run (one admin, one bookman, one passenger)
+A “Register” link for new passengers
+Passenger
+Search or pick From → To and see the available trips: departure time, fare, seats left, bus status
+Book a ticket: pick a trip, choose MoMo (mock) or pay at the station, and receive a ticket number plus QR code on screen
+Mock MoMo flow: enter a phone number, show a “Approve payment on your phone” dialog, wait 2 to 3 seconds, then mark the payment as successful
+Mock SMS: show a popup like “SMS sent to 024xxxxxxx: your ticket code is …” and also write it to sms_log.json
+My Tickets: a list with ticket status (Booked, Paid, Boarded, Cancelled, Expired) and the bus status (Scheduled, Loading, Full, Departed)
+Cancel a ticket that hasn’t been used, which frees the seat
+Bookman
+Sees the trips for his station, with the next bus arriving or loading highlighted
+Sell at counter: choose a trip, enter the passenger’s name and phone, take payment (Cash or MoMo mock), then generate and print the ticket and mock-SMS the code
+Live seat counter on every trip card:
+Green: plenty of seats
+Amber: 90% or more sold
+Red: full, and the Sell button is disabled automatically
+Validate ticket: type in or paste the ticket number (or the QR text) to mark the passenger as Boarded. A ticket works once only, and a repeat scan shows “Already used”.
+Change a trip’s status: Scheduled → Loading → Full → Departed
+Admin
+Manage: buses, routes (From, To, fare), trips, and user accounts
+Live operations view: every trip with its bus, origin, destination, status, seats sold against capacity, and which bookman is serving it
+Dashboard with summary cards: total revenue, tickets sold today, average occupancy, buses currently loading, and a simple bar chart of tickets per route
+Routes table (From → To): a DataGridView where clicking a column header sorts it, and a filter box for destination
+Audit log: a table of who did what and when (logins, sales, cancellations, boardings, status changes, price changes)
+6. Business Rules
+Sold seats can never exceed bus capacity. Every sale goes through one shared function that re-reads the data, checks the count, and saves, so the Sell button can never oversell.
+A full trip blocks both online booking and counter sales.
+Each ticket has a unique, hard-to-guess number (for example GH- plus 8 random characters). It is valid for one trip and one boarding.
+Cancelling a ticket reduces the seat count, and a boarded ticket cannot be cancelled.
+Trips marked Departed can’t be sold or boarded.
+Every important action is written to the audit log.
+7. JSON Data Files
+
+Stored in a Data folder next to the app and created with sample data on first run:
+
+File	Contents
+users.json	username, hashed password, role, name, phone
+stations.json	station names (Accra, Kumasi, Tamale, Takoradi, Cape Coast, …)
+routes.json	from, to, fare, distance
+buses.json	bus number, capacity, driver name
+trips.json	route, bus, departure time, status, seats sold, bookman
+tickets.json	ticket number, trip, passenger, payment method, status, time
+payments.json	ticket, method, amount, status
+smslog.json	phone, message, time
+auditlog.json	user, action, details, time
+
+Sharing and loading:
+
+Write to a temporary file and then replace the real one, so a crash can’t corrupt the data.
+Use one DataStore module that all forms call, so the JSON code lives in one place.
+A Timer (every 3 to 5 seconds) reloads the data so seat counts and bus statuses update live. For the demo, you can run two copies of the app (bookman and passenger) side by side and watch them stay in sync.
+Keep a Data_Seed backup folder and a “Reset demo data” button (admin only) so any group member can restore a clean state before presenting.
+8. UI Requirements
+Card-style layout: each trip is a card (Panel) with a bold title, clear route, large seat count, status colour, and a button. Use dark text on light backgrounds (or the reverse) for strong contrast, and never grey on grey.
+Resizable windows: every form must work small and maximised.
+Use Dock, Anchor, TableLayoutPanel and FlowLayoutPanel instead of fixed positions
+Cards sit in a FlowLayoutPanel with AutoScroll = True, so they wrap as the window changes size
+Set a sensible MinimumSize on every form
+Use Dock = Fill and column auto-size on DataGridViews
+Large buttons and fonts on the bookman screen for fast use at the counter
+Consistent colours: green (available), amber (almost full), red (full), blue (loading)
+A printable ticket showing: company name, From → To, date and time, passenger, ticket number, and QR code
+9. Security Practices (even for a mock)
+
+Worth building properly, since it counts for marks and teaches the right habit:
+
+Never store plain-text passwords. Hash them with Rfc2898DeriveBytes.Pbkdf2 plus a random salt.
+Check the user’s role before every action, not just by hiding buttons. For example, the sell function should reject anyone who isn’t a Bookman or Admin.
+Generate ticket numbers with RandomNumberGenerator, not Random, so they can’t be guessed.
+Put a signature (HMAC) inside the QR text so a forged ticket fails validation.
+Add login attempt limiting: lock the account for a minute after 5 wrong passwords.
+Validate all input: phone number format, no empty names, and numbers within range.
+Keep the real app’s secrets (API keys) out of code. In this mock there are none, but note it in your documentation as how a real version would work.
+10. Suggested Work Split (group of 4)
+Member 1: DataStore module, models, JSON read/write, seed data, password hashing, login form, audit logging
+Member 2: Passenger forms (search, booking, mock MoMo, mock SMS, My Tickets, QR)
+Member 3: Bookman forms (counter sales, live seat card, validate ticket, status changes, ticket printing)
+Member 4: Admin forms (dashboard cards, live operations, sortable routes table, audit log, management screens)
+
+Agree the model classes and DataStore function names on day one so everyone can work in parallel.
+
+11. Demo Script (5 minutes)
+Log in as Passenger, search Accra → Kumasi, book a ticket, pay by mock MoMo, and show the QR and SMS popup.
+Log in as Bookman, show the live seat counter, and sell a Cash ticket.
+Validate the passenger’s ticket, which marks them Boarded. Try it again to show “Already used”.
+Keep selling until the bus hits Full and the Sell button locks. This is the core problem being solved.
+Log in as Admin and show the dashboard, live operations view, sortable routes table, and audit log.
+Resize the window to show the responsive layout.
+12. Out of Scope (mention as “future work”)
+
+Real MoMo and SMS integration, GPS tracking, seat-number selection, multiple companies, a web or mobile version, and a real database such as PostgreSQL.
